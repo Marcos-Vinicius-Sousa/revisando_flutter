@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "354076428219",
+    "project_id": "whatsapp-c4f12",
+    "storage_bucket": "whatsapp-c4f12.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:354076428219:android:6a3558acd8165f0313a69e",
+        "android_client_info": {
+          "package_name": "dev.marcosvinicius.com.whatsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "354076428219-hcg4bc5g2b1novmthkcpv1fvnlct09h9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWQFrBOEBfdCYSFyDDWzvWwJxUjHhC-Xk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "354076428219-hcg4bc5g2b1novmthkcpv1fvnlct09h9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
