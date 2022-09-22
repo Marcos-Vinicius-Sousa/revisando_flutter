@@ -32,10 +32,7 @@ class _InitialScreenState extends State<InitialScreen> {
               Tasks('Andar de Bike', 'assets/images/bike.webp', 2),
               Tasks('Ler 50 páginas', 'assets/images/ler.jpg', 1),
               Tasks('Meditar', 'assets/images/meditar.jpeg', 4),
-              Tasks(
-                'Jogar',
-                'assets/images/jogar.jpg',
-                0,
+              Tasks('Jogar', 'assets/images/jogar.jpg', 0,
               ),
               SizedBox(
                 height: 100,
