@@ -1,4 +1,6 @@
-import 'package:alura_flutter_curso_1/components/tasks.dart';
+
+import 'package:alura_flutter_curso_1/data/task_inherited.dart';
+import 'package:alura_flutter_curso_1/screens/form_screen.dart';
 import 'package:flutter/material.dart';
 
 class InitialScreen extends StatefulWidget {
@@ -10,45 +12,22 @@ class InitialScreen extends StatefulWidget {
 
 class _InitialScreenState extends State<InitialScreen> {
   @override
-  bool opacidade = true;
-
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Flutter: Primeiros Passos'),
-        leading: Icon(Icons.add_task),
+        leading: Container(),
       ),
-      body: AnimatedOpacity(
-        opacity: opacidade ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 500),
-        child: Container(
-          color: Color.fromARGB(255, 208, 221, 237),
-          child: ListView(
-            children: const [
-              Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Tasks('Estudar Flutter', 'assets/images/flutter.png', 3),
-              ),
-              Tasks('Andar de Bike', 'assets/images/bike.webp', 2),
-              Tasks('Ler 50 páginas', 'assets/images/ler.jpg', 1),
-              Tasks('Meditar', 'assets/images/meditar.jpeg', 4),
-              Tasks('Jogar', 'assets/images/jogar.jpg', 0,
-              ),
-              SizedBox(
-                height: 100,
-              ),
-            ],
-          ),
-        ),
+      body: ListView(
+        children: TaskInherited.of(context).taskList,
+        padding: EdgeInsets.only(top: 8, bottom: 70),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            opacidade = !opacidade;
-          });
+          Navigator.push(
+              context, MaterialPageRoute(builder: (contextNew) => FormScreen(taskContext: context)));
         },
-        backgroundColor: Colors.blue[100],
-        child: const Icon(Icons.remove_red_eye),
+        child: const Icon(Icons.add),
       ),
     );
   }

@@ -1,7 +1,10 @@
+import 'package:alura_flutter_curso_1/data/task_inherited.dart';
 import 'package:flutter/material.dart';
 
 class FormScreen extends StatefulWidget {
-  const FormScreen({Key? key}) : super(key: key);
+  const FormScreen({Key? key, required this.taskContext}) : super(key: key);
+
+  final BuildContext taskContext;
 
   @override
   State<FormScreen> createState() => _FormScreenState();
@@ -12,6 +15,7 @@ class _FormScreenState extends State<FormScreen> {
   final TextEditingController _controlerDificuldade = TextEditingController();
   final TextEditingController _controlerImagem = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -124,14 +128,19 @@ class _FormScreenState extends State<FormScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          print(_controlerNome.text);
-                          print(_controlerDificuldade.text);
-                          print(_controlerImagem.text);
+                          // print(_controlerNome.text);
+                          // print(_controlerDificuldade.text);
+                          // print(_controlerImagem.text);
+                          TaskInherited.of(widget.taskContext).newTask(
+                              _controlerNome.text,
+                              _controlerImagem.text,
+                              int.parse(_controlerDificuldade.text));
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text("Tarefa adicionada com sucesso!"),
                             ),
                           );
+                          Navigator.pop(context);
                         }
                       },
                       child: Text("Adicionar"),
