@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:whatsapp/Home.dart';
+import 'package:whatsapp/model/Usuario.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Cadastro extends StatefulWidget {
   const Cadastro({Key? key}) : super(key: key);
+
 
   @override
   State<Cadastro> createState() => _CadastroState();
 }
 
 class _CadastroState extends State<Cadastro> {
+  /* Adicionar dados */
+  //CollectionReference users = FirebaseFirestore.instance.collection('usuarios');
 
   //Controladores
-  TextEditingController _controllerNome = TextEditingController();
-  TextEditingController _controllerEmail = TextEditingController();
-  TextEditingController _controllerSenha1 = TextEditingController();
-  TextEditingController _controllerSenha2 = TextEditingController();
+  TextEditingController _controllerNome = TextEditingController(text: "yasmin");
+  TextEditingController _controllerEmail = TextEditingController(text: "yasmin@gmail.com");
+  TextEditingController _controllerSenha1 = TextEditingController(text: "1234567");
+  TextEditingController _controllerSenha2 = TextEditingController(text: "1234567");
   final _formKey = GlobalKey<FormState>();
 
   String _mensagemErro = "";
@@ -29,8 +36,14 @@ class _CadastroState extends State<Cadastro> {
 
     if(nome.isNotEmpty){
       if(email.isNotEmpty && email.contains("@")){
-        if(senha1.isNotEmpty){
+        if(senha1.isNotEmpty && senha1.length > 6){
           if(senha2.isNotEmpty && senha1 == senha2){
+
+            Usuario usuario = Usuario();
+            usuario.nome = nome;
+            usuario.email = email;
+            usuario.senha = senha1;
+            _cadastrarUsuario(usuario);
             setState(() {
               _mensagemErro = "Sucesso";
             });
@@ -43,7 +56,7 @@ class _CadastroState extends State<Cadastro> {
           }
         }else{
           setState(() {
-            _mensagemErro = "Preencha a senha";
+            _mensagemErro = "Preencha a senha com mais de 6 caracteres";
           });
           return true;
         }
@@ -61,8 +74,40 @@ class _CadastroState extends State<Cadastro> {
     }
   }
 
-  _cadastrarUsuario(){
+  // Future<void> addUser(Usuario usuario) {
+  //   return users.add({'nome': usuario.nome, 'email': usuario.email}).then((value) {
+  //     debugPrint("Usuário adicionado");
+  //
+  //     // ignore: invalid_return_type_for_catch_error
+  //   }).catchError((error) => debugPrint("Falha ao adicionar usuário: $error"));
+  // }
 
+  _cadastrarUsuario(Usuario usuario){
+
+    FirebaseAuth auth = FirebaseAuth.instance;
+    auth.createUserWithEmailAndPassword(
+        email: usuario.email,
+        password: usuario.senha
+    ).then((firebaseUser) {
+
+      //Salvando dados do usuario
+       FirebaseFirestore db = FirebaseFirestore.instance;
+       db.collection("users")
+      .doc(firebaseUser.user?.uid)
+       .set(usuario.toMap());
+      //addUser(usuario);
+
+
+       Navigator.pushReplacement(
+           context,
+           MaterialPageRoute(builder: (context)=> Home(),
+           )
+       );
+    }).catchError((error){
+      setState(() {
+        _mensagemErro = "Erro ao cadastrar usuário, verifique os campos e tente novamente";
+      });
+    });
   }
 
   @override

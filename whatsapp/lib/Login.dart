@@ -1,5 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:whatsapp/Cadastro.dart';
+import 'package:whatsapp/model/Usuario.dart';
+
+import 'Home.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -9,6 +14,88 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
+  //Controladores
+  TextEditingController _controllerEmail = TextEditingController();
+  TextEditingController _controllerSenha = TextEditingController();
+  String _mensagemErro = "";
+
+  //validador
+  _validarCampos(){
+
+    //Recuperar dados dos campos
+    String email = _controllerEmail.text;
+    String senha = _controllerSenha.text;
+
+
+
+      if(email.isNotEmpty && email.contains("@")){
+
+        if(senha.isNotEmpty ){
+          setState(() {
+            _mensagemErro="";
+          });
+
+          Usuario usuario = Usuario();
+          usuario.email = email;
+          usuario.senha = senha;
+          _logarUsuario(usuario);
+
+          return false;
+        }else{
+          setState(() {
+            _mensagemErro = "Preencha a senha";
+          });
+          return true;
+        }
+      }else{
+        setState(() {
+          _mensagemErro = "Preencha o email corretamente";
+        });
+        return true;
+      }
+    }
+
+    _logarUsuario(Usuario usuario){
+
+      FirebaseAuth auth = FirebaseAuth.instance;
+      auth.signInWithEmailAndPassword(
+          email: usuario.email,
+          password: usuario.senha
+      ).then((firebaseUser) => {
+      Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context)=> Home(),)
+      )
+      }).catchError((error){
+        setState(() {
+        _mensagemErro = "Erro ao autenticar usuário, verifique email,senha e tente novamente";
+          });
+      });
+    }
+
+    Future _verificarUsuarioLogado() async {
+
+      FirebaseAuth auth = FirebaseAuth.instance;
+       User? usuarioLogado = await auth.currentUser;
+       //auth.signOut();
+
+      if(usuarioLogado != null){
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context)=> Home(),
+            )
+        );
+      }
+    }
+
+    @override
+  void initState() {
+    _verificarUsuarioLogado();
+    super.initState();
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +118,8 @@ class _LoginState extends State<Login> {
                 ),
                 Padding(
                     padding: EdgeInsets.only(bottom: 8),
-                    child: TextField(
+                    child: TextFormField(
+                      controller: _controllerEmail,
                       autofocus: true,
                       keyboardType: TextInputType.emailAddress,
                       style: TextStyle(fontSize: 20),
@@ -46,7 +134,8 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                 ),
-                TextField(
+                TextFormField(
+                  controller: _controllerSenha,
                   autofocus: true,
                   keyboardType: TextInputType.text,
                   style: TextStyle(fontSize: 20),
@@ -75,7 +164,7 @@ class _LoginState extends State<Login> {
                       ))
                     ),
                     onPressed: (){
-
+                      _validarCampos();
                     },
                   ),
                 ),
@@ -93,6 +182,17 @@ class _LoginState extends State<Login> {
                           MaterialPageRoute(builder: (context) => Cadastro())
                       );
                     },
+                  ),
+                ),
+                Padding(
+                    padding: EdgeInsets.only(top: 16),
+                  child: Center(
+                    child: Text(_mensagemErro,
+                      style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 18
+                      ),
+                    ),
                   ),
                 )
               ],
