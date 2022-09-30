@@ -17,10 +17,10 @@ class _CadastroState extends State<Cadastro> {
   //CollectionReference users = FirebaseFirestore.instance.collection('usuarios');
 
   //Controladores
-  TextEditingController _controllerNome = TextEditingController(text: "yasmin");
-  TextEditingController _controllerEmail = TextEditingController(text: "yasmin@gmail.com");
-  TextEditingController _controllerSenha1 = TextEditingController(text: "1234567");
-  TextEditingController _controllerSenha2 = TextEditingController(text: "1234567");
+  TextEditingController _controllerNome = TextEditingController();
+  TextEditingController _controllerEmail = TextEditingController();
+  TextEditingController _controllerSenha1 = TextEditingController();
+  TextEditingController _controllerSenha2 = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   String _mensagemErro = "";

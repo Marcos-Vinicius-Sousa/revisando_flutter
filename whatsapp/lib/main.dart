@@ -16,8 +16,8 @@ Future<void> main() async   {
       primaryColor: Color(0xff075E54),
         colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Color(0xff25D366))
     ),
-    //initialRoute: "/login",
-    //onGenerateRoute: RouteGenerator.generateRoute,
+    initialRoute: "/login",
+    onGenerateRoute: RouteGenerator.generateRoute,
     debugShowCheckedModeBanner: false,
   ));
 }
