@@ -48,7 +48,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
       case "Configurações":
         Navigator.push(
             context,
-            MaterialPageRoute(builder: (context)=> Configuracoes(),
+            MaterialPageRoute(builder: (context)=> const Configuracoes(),
             )
         );
         break;
@@ -63,9 +63,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
     FirebaseAuth auth = FirebaseAuth.instance;
     await auth.signOut();
 
+    // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context)=> Login(),
+        MaterialPageRoute(builder: (context)=> const Login(),
     ));
 
   }
@@ -74,17 +75,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Whatsapp"),
-        backgroundColor: Color(0xff075E54),
+        title: const Text("Whatsapp"),
+        backgroundColor: const Color(0xff075E54),
         bottom: TabBar(
           indicatorWeight: 4,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold
           ),
           controller: _tabController,
           indicatorColor: Colors.white,
-          tabs: [
+          tabs: const [
             Tab(text: "Conversas",),
             Tab(text: "Contatos",)
           ],
@@ -105,7 +106,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
+        children: const [
           AbaConversas(),
           AbaContatos()
         ],

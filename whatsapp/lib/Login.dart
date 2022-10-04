@@ -16,8 +16,8 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
 
   //Controladores
-  TextEditingController _controllerEmail = TextEditingController();
-  TextEditingController _controllerSenha = TextEditingController();
+  final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerSenha = TextEditingController();
   String _mensagemErro = "";
 
   //validador
@@ -80,10 +80,10 @@ class _LoginState extends State<Login> {
        User? usuarioLogado = await auth.currentUser;
        //auth.signOut();
 
-      if(usuarioLogado != null){
+      if(usuarioLogado != null) {
         Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context)=> Home(),
+            MaterialPageRoute(builder: (context)=> const  Home(),
             )
         );
       }
