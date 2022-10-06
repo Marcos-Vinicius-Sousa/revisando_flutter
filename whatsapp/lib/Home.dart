@@ -35,6 +35,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
   @override
   void initState() {
     super.initState();
+    _verificarUsuarioLogado();
     _recuperarDadosUsuario();
     _tabController = TabController(
         length: 2,
@@ -69,6 +70,20 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
         MaterialPageRoute(builder: (context)=> const Login(),
     ));
 
+  }
+
+  Future _verificarUsuarioLogado() async {
+
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? usuarioLogado = await auth.currentUser;
+
+    if(usuarioLogado == null) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context)=> const  Login(),
+          )
+      );
+    }
   }
 
   @override

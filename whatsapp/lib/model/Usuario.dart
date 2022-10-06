@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Usuario{
 
+  late String _idUsuario;
   late String _nome;
   late String _email;
   late String _senha;
@@ -21,14 +22,23 @@ class Usuario{
     this.nome = documentSnapshot["nome"];
     this.email = documentSnapshot["email"];
     this.urlImagem = documentSnapshot["urlImagem"];
+    this.idUsuario = documentSnapshot["idUsuario"];
   }
 
   Map<String,dynamic> toMap(){
     Map<String,dynamic> map = {
       "nome": nome,
-      "email": email
+      "email": email,
+      "idUsuario": idUsuario
     };
     return map;
+  }
+
+
+  String get idUsuario => _idUsuario;
+
+  set idUsuario(String value) {
+    _idUsuario = value;
   }
 
   String get senha => _senha;

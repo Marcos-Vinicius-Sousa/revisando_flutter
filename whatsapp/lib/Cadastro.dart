@@ -22,6 +22,7 @@ class _CadastroState extends State<Cadastro> {
   TextEditingController controllerSenha1 = TextEditingController();
   TextEditingController controllerSenha2 = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  late String _idUsuario;
 
   String _mensagemErro = "";
 
@@ -89,7 +90,8 @@ class _CadastroState extends State<Cadastro> {
         email: usuario.email,
         password: usuario.senha
     ).then((firebaseUser) {
-
+      _idUsuario = firebaseUser.user!.uid;
+      usuario.idUsuario = _idUsuario;
       //Salvando dados do usuario
        FirebaseFirestore db = FirebaseFirestore.instance;
        db.collection("users")
