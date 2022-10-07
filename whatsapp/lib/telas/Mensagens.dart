@@ -66,7 +66,49 @@ class _MensagensState extends State<Mensagens> {
     _controllerMenssagem.clear();
   }
 
-  _enviarFoto() async{
+
+  _enviarFoto()async{
+    final ImagePicker _picker = ImagePicker();
+    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if(image != null){
+      UploadTask task = await upload(image.path);
+      task.snapshotEvents.listen((TaskSnapshot snapshot) async {
+        if(snapshot.state == TaskState.running){
+
+        }else if(snapshot.state == TaskState.success){
+
+          _recuperarURLimagem(snapshot);
+        }
+      });
+    }
+  }
+
+  Future<UploadTask> upload(String path) async{
+    File file = File(path);
+    String nomeImagem = DateTime.now().microsecondsSinceEpoch.toString();
+    try{
+      String ref = 'mensagens/${_idUsuarioLogado}/${nomeImagem}.jpg';
+      return storage.ref(ref).putFile(file);
+    } on FirebaseException catch(e){
+      throw Exception('Erro no upload: ${e.code}');
+    }
+  }
+
+  Future _recuperarURLimagem(TaskSnapshot taskSnapshot)async{
+    String url = await taskSnapshot.ref.getDownloadURL();
+
+    Mensagem mensagem = Mensagem();
+    mensagem.idUsuario = _idUsuarioLogado;
+    mensagem.mensagem = "";
+    mensagem.urlImagem = url;
+    mensagem.tipo = "imagem";
+
+    // Salvando mensagem para o remetente
+    _salvarMensagem(_idUsuarioLogado, _idUsuarioDestinatario, mensagem);
+
+    // Salvando mensagem para o destinatario
+    _salvarMensagem(_idUsuarioDestinatario, _idUsuarioLogado, mensagem);
 
   }
 
@@ -188,10 +230,10 @@ class _MensagensState extends State<Mensagens> {
                                   color: cor,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(8))),
-                              child: Text(
-                                item["mensagem"],
-                                style: TextStyle(fontSize: 16),
-                              ),
+                              child:
+                              item["tipo"] == "texto"
+                              ? Text(item["mensagem"], style: TextStyle(fontSize: 16),)
+                              : Image.network(item["urlImagem"]),
                             ),
                           ),
                         );

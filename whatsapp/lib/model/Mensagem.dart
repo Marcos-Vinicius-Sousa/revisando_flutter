@@ -15,7 +15,7 @@ class Mensagem {
       "idUsuario": _idUsuario,
       "mensagem": _mensagem,
       "urlImagem": _urlImagem,
-      "tipo": _tipo,
+       "tipo": _tipo,
     };
     return map;
   }

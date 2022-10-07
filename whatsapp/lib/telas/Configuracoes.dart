@@ -63,9 +63,6 @@ class _ConfiguracoesState extends State<Configuracoes> {
           _recuperarURLimagem(snapshot);
         }
       });
-
-
-
     }
   }
 
