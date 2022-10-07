@@ -16,6 +16,7 @@ class _CadastroState extends State<Cadastro> {
   /* Adicionar dados */
   //CollectionReference users = FirebaseFirestore.instance.collection('usuarios');
 
+   String perfil = "https://firebasestorage.googleapis.com/v0/b/whatsapp-c4f12.appspot.com/o/perfil%2Fperfil.jpeg?alt=media&token=6ed1755f-a3f1-432f-a048-a015822a3d31";
   //Controladores
   TextEditingController controllerNome = TextEditingController();
   TextEditingController controllerEmail = TextEditingController();
@@ -44,6 +45,8 @@ class _CadastroState extends State<Cadastro> {
             usuario.nome = nome;
             usuario.email = email;
             usuario.senha = senha1;
+
+
             _cadastrarUsuario(usuario);
             setState(() {
               _mensagemErro = "Sucesso";
@@ -92,6 +95,8 @@ class _CadastroState extends State<Cadastro> {
     ).then((firebaseUser) {
       _idUsuario = firebaseUser.user!.uid;
       usuario.idUsuario = _idUsuario;
+      usuario.urlImagem = perfil;
+
       //Salvando dados do usuario
        FirebaseFirestore db = FirebaseFirestore.instance;
        db.collection("users")
@@ -111,6 +116,7 @@ class _CadastroState extends State<Cadastro> {
       });
     });
   }
+
 
   @override
   Widget build(BuildContext context) {

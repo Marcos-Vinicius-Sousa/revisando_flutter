@@ -29,7 +29,8 @@ class Usuario{
     Map<String,dynamic> map = {
       "nome": nome,
       "email": email,
-      "idUsuario": idUsuario
+      "idUsuario": idUsuario,
+      "urlImagem": urlImagem
     };
     return map;
   }

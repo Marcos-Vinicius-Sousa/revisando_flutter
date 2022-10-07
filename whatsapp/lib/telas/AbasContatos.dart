@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:whatsapp/model/Conversa.dart';
 import 'package:whatsapp/model/Usuario.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:whatsapp/telas/Mensagens.dart';
 
 class AbaContatos extends StatefulWidget {
   const AbaContatos({Key? key}) : super(key: key);
@@ -15,11 +16,12 @@ class AbaContatos extends StatefulWidget {
 
 class _AbaContatosState extends State<AbaContatos> {
 
-  List<Usuario> listaUsuarios = [];
+  //List<Usuario> listaUsuarios = [];
   late String _idUsuarioLogado;
   late String _emailUsuarioLogado;
   Usuario usuario = Usuario();
   final _controller = StreamController<QuerySnapshot>.broadcast();
+
 
   _recuperarDadosUsuario() async{
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -44,31 +46,32 @@ class _AbaContatosState extends State<AbaContatos> {
     return _controller;
   }
 
-  Future<List<Usuario>> _recuperarContatos() async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    QuerySnapshot querySnapshot = await db.collection("users").get();
-      for (var item in querySnapshot.docs) {
-        var dados;
-        dados = item.data();
-        Map<String,dynamic> dadosUsers = item.data() as Map<String, dynamic>;
-
-        //if(dados["email"] == _emailUsuarioLogado) continue;
-        // usuario.nome = dadosUsers["nome"];
-        // usuario.email = dadosUsers["email"];
-        // usuario.urlImagem = dadosUsers["urlImagem"];
-        // listaUsuarios.add(usuario);
-        usuario.nome = dados['nome'];
-        usuario.email= dados['email'];
-        usuario.urlImagem = dados['urlImagem'];
-        listaUsuarios.add(usuario);
-      }
-    return listaUsuarios;
-  }
+  // Future<List<Usuario>> _recuperarContatos() async {
+  //   FirebaseFirestore db = FirebaseFirestore.instance;
+  //   QuerySnapshot querySnapshot = await db.collection("users").get();
+  //     for (var item in querySnapshot.docs) {
+  //       var dados;
+  //       dados = item.data();
+  //       Map<String,dynamic> dadosUsers = item.data() as Map<String, dynamic>;
+  //
+  //       //if(dados["email"] == _emailUsuarioLogado) continue;
+  //       // usuario.nome = dadosUsers["nome"];
+  //       // usuario.email = dadosUsers["email"];
+  //       // usuario.urlImagem = dadosUsers["urlImagem"];
+  //       // listaUsuarios.add(usuario);
+  //       usuario.nome = dados['nome'];
+  //       usuario.email= dados['email'];
+  //       usuario.urlImagem = dados['urlImagem'];
+  //       listaUsuarios.add(usuario);
+  //     }
+  //   return listaUsuarios;
+  // }
 
   @override
   void initState() {
-    _listenerUsuarios();
     super.initState();
+    _listenerUsuarios();
+    _recuperarDadosUsuario();
   }
 
   @override
@@ -76,7 +79,6 @@ class _AbaContatosState extends State<AbaContatos> {
     return StreamBuilder(
         stream: _controller.stream,
       builder: (context, snapshot) {
-        if(snapshot.hasData){
           switch (snapshot.connectionState) {
             case ConnectionState.none:
             case ConnectionState.waiting:
@@ -100,9 +102,10 @@ class _AbaContatosState extends State<AbaContatos> {
               );
             case ConnectionState.active:
             case ConnectionState.done:
-            QuerySnapshot querySnapshot = snapshot.data as QuerySnapshot;
-            List<DocumentSnapshot> usuarios = querySnapshot.docs.toList();
-            usuarios.removeWhere((usuario) => usuario.id == _idUsuarioLogado);
+                QuerySnapshot querySnapshot = snapshot.data as QuerySnapshot;
+                List<DocumentSnapshot> usuarios = querySnapshot.docs.toList();
+                usuarios.removeWhere((usuario) => usuario.id == _idUsuarioLogado);
+
               return ListView.builder(
                 itemCount: usuarios.length,
                 itemBuilder: (_, indice) {
@@ -110,7 +113,12 @@ class _AbaContatosState extends State<AbaContatos> {
                   Usuario usuario = Usuario.fromDocumentSnapshot(documentSnapshot);
                   return ListTile(
                     onTap: (){
-                      
+                      _recuperarDadosUsuario();
+                      debugPrint(usuario.idUsuario);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context)=>  Mensagens(usuario),
+                          ));
                     },
                     contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                     leading: CircleAvatar(
@@ -128,14 +136,10 @@ class _AbaContatosState extends State<AbaContatos> {
                   );
                 },
               );
+            }
           }
-        }else{
-          return Container(
-            child: Text("Vazio"),
-          );
-        }
 
-      },
+      ,
     );
   }
 }
