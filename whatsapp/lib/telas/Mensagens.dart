@@ -10,15 +10,17 @@ import 'package:image_picker/image_picker.dart';
 
 class Mensagens extends StatefulWidget {
   Usuario contato;
-  Mensagens(this.contato);
+  String emailLogado;
+  Mensagens(this.contato, this.emailLogado);
 
   @override
   State<Mensagens> createState() => _MensagensState();
 }
 
 class _MensagensState extends State<Mensagens> {
-  late String _idUsuarioLogado;
-  late String _idUsuarioDestinatario;
+
+  late String _emailLogado;
+  late String _emailDestinatario;
   FirebaseFirestore db = FirebaseFirestore.instance;
   FirebaseStorage storage = FirebaseStorage.instance;
   TextEditingController _controllerMenssagem = TextEditingController();
@@ -28,8 +30,8 @@ class _MensagensState extends State<Mensagens> {
     User? usuarioLogado = await auth.currentUser;
     if(usuarioLogado!.uid != null){
       setState(() {
-        _idUsuarioLogado = usuarioLogado.uid;
-        _idUsuarioDestinatario = widget.contato.idUsuario;
+        _emailLogado = widget.emailLogado;
+        _emailDestinatario = widget.contato.email;
       });
     }
 
@@ -39,16 +41,17 @@ class _MensagensState extends State<Mensagens> {
     String textoMensagem = _controllerMenssagem.text;
     if (textoMensagem.isNotEmpty) {
       Mensagem mensagem = Mensagem();
-      mensagem.idUsuario = _idUsuarioLogado;
+      mensagem.email = _emailLogado;
       mensagem.mensagem = textoMensagem;
       mensagem.urlImagem = "";
       mensagem.tipo = "texto";
+      mensagem.tempoMensagem = DateTime.now().toString();
 
       // Salvando mensagem para o remetente
-      _salvarMensagem(_idUsuarioLogado, _idUsuarioDestinatario, mensagem);
+      _salvarMensagem(_emailLogado, _emailDestinatario, mensagem);
 
       // Salvando mensagem para o destinatario
-      _salvarMensagem(_idUsuarioDestinatario, _idUsuarioLogado, mensagem);
+      _salvarMensagem(_emailDestinatario, _emailLogado, mensagem);
     }
   }
 
@@ -87,8 +90,10 @@ class _MensagensState extends State<Mensagens> {
   Future<UploadTask> upload(String path) async{
     File file = File(path);
     String nomeImagem = DateTime.now().microsecondsSinceEpoch.toString();
+    String tempoMensagem = DateTime.now().toString();
+    debugPrint(tempoMensagem);
     try{
-      String ref = 'mensagens/${_idUsuarioLogado}/${nomeImagem}.jpg';
+      String ref = 'mensagens/${_emailLogado}/${nomeImagem}.jpg';
       return storage.ref(ref).putFile(file);
     } on FirebaseException catch(e){
       throw Exception('Erro no upload: ${e.code}');
@@ -99,16 +104,17 @@ class _MensagensState extends State<Mensagens> {
     String url = await taskSnapshot.ref.getDownloadURL();
 
     Mensagem mensagem = Mensagem();
-    mensagem.idUsuario = _idUsuarioLogado;
+    mensagem.email = _emailLogado;
     mensagem.mensagem = "";
     mensagem.urlImagem = url;
     mensagem.tipo = "imagem";
+    mensagem.tempoMensagem = DateTime.now().toString();
 
     // Salvando mensagem para o remetente
-    _salvarMensagem(_idUsuarioLogado, _idUsuarioDestinatario, mensagem);
+    _salvarMensagem(_emailLogado, _emailDestinatario, mensagem);
 
     // Salvando mensagem para o destinatario
-    _salvarMensagem(_idUsuarioDestinatario, _idUsuarioLogado, mensagem);
+    _salvarMensagem(_emailDestinatario, _emailLogado, mensagem);
 
   }
 
@@ -128,7 +134,7 @@ class _MensagensState extends State<Mensagens> {
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(right: 8),
-              child: TextField(
+              child: TextFormField(
                 controller: _controllerMenssagem,
                 autofocus: true,
                 keyboardType: TextInputType.text,
@@ -169,8 +175,9 @@ class _MensagensState extends State<Mensagens> {
     var stream = StreamBuilder(
         stream: db
             .collection("mensagens")
-            .doc(_idUsuarioLogado)
-            .collection(_idUsuarioDestinatario)
+            .doc(_emailLogado)
+            .collection(_emailDestinatario)
+            .orderBy("tempoMensagem")
             .snapshots(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
@@ -204,7 +211,7 @@ class _MensagensState extends State<Mensagens> {
                   child: ListView.builder(
                       itemCount: querySnapshot?.docs.length,
                       itemBuilder: (context, indice) {
-
+                      
                         // recuperar mensagem
                         List<DocumentSnapshot>? mensagens = querySnapshot?.docs.toList();
                         DocumentSnapshot item = mensagens![indice];
@@ -214,7 +221,7 @@ class _MensagensState extends State<Mensagens> {
                         // Definindo cores e alinhamento
                         Alignment alinhamento = Alignment.centerRight;
                         Color cor = Color(0xffd2ffa5);
-                        if (_idUsuarioLogado != item["idUsuario"]) {
+                        if (_emailLogado != item["email"]) {
                           cor = Colors.white;
                           alinhamento = Alignment.centerLeft;
                         }
@@ -231,9 +238,13 @@ class _MensagensState extends State<Mensagens> {
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(8))),
                               child:
-                              item["tipo"] == "texto"
-                              ? Text(item["mensagem"], style: TextStyle(fontSize: 16),)
-                              : Image.network(item["urlImagem"]),
+                              ListTile(
+                                title: item["tipo"] == "texto"
+                                ? Text(item["mensagem"], style: TextStyle(fontSize: 16),)
+                                : Image.network(item["urlImagem"]),
+                                subtitle: Text(item["tempoMensagem"]),
+
+                              ),
                             ),
                           ),
                         );
