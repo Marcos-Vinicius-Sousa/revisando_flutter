@@ -21,6 +21,7 @@ class _MensagensState extends State<Mensagens> {
 
   late String _emailLogado;
   late String _emailDestinatario;
+  bool _subindoImagem = false;
   FirebaseFirestore db = FirebaseFirestore.instance;
   FirebaseStorage storage = FirebaseStorage.instance;
   TextEditingController _controllerMenssagem = TextEditingController();
@@ -78,9 +79,13 @@ class _MensagensState extends State<Mensagens> {
       UploadTask task = await upload(image.path);
       task.snapshotEvents.listen((TaskSnapshot snapshot) async {
         if(snapshot.state == TaskState.running){
-
+          setState(() {
+            _subindoImagem = true;
+          });
         }else if(snapshot.state == TaskState.success){
-
+          setState(() {
+            _subindoImagem = false;
+          });
           _recuperarURLimagem(snapshot);
         }
       });
@@ -135,9 +140,11 @@ class _MensagensState extends State<Mensagens> {
             child: Padding(
               padding: EdgeInsets.only(right: 8),
               child: TextFormField(
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
                 controller: _controllerMenssagem,
                 autofocus: true,
-                keyboardType: TextInputType.text,
+                //keyboardType: TextInputType.text,
                 style: const TextStyle(fontSize: 20),
                 decoration: InputDecoration(
                     contentPadding: const EdgeInsets.fromLTRB(32, 8, 32, 8),
@@ -146,12 +153,12 @@ class _MensagensState extends State<Mensagens> {
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24)),
-                    prefixIcon: IconButton(
-                      icon: Icon(Icons.camera_alt, color: Color(0xff075E54)),
-                      onPressed: () {
-                        _enviarFoto();
-                      },
-                    )),
+                    prefixIcon:
+                      _subindoImagem
+                      ? const SizedBox(width: 3, height: 3,child: CircularProgressIndicator(strokeWidth: 1.0, color: Colors.black,))
+                      :IconButton(icon: const Icon(Icons.camera_alt, color: Color(0xff075E54)), onPressed:(){ _enviarFoto();},
+                    )
+                ),
               ),
             ),
           ),
@@ -238,13 +245,9 @@ class _MensagensState extends State<Mensagens> {
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(8))),
                               child:
-                              ListTile(
-                                title: item["tipo"] == "texto"
-                                ? Text(item["mensagem"], style: TextStyle(fontSize: 16),)
-                                : Image.network(item["urlImagem"]),
-                                subtitle: Text(item["tempoMensagem"]),
-
-                              ),
+                              item["tipo"] == "texto"
+                              ? Text(item["mensagem"], style: TextStyle(fontSize: 16),)
+                              : Image.network(item["urlImagem"]),
                             ),
                           ),
                         );
