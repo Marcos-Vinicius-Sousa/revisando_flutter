@@ -15,8 +15,9 @@ class AbaContatos extends StatefulWidget {
 }
 
 class _AbaContatosState extends State<AbaContatos> {
-  late String _idUsuarioLogado;
-  late String _emailLogado;
+   String _idUsuarioLogado = '';
+   String _emailLogado = '';
+   String _urlImagem = '';
   final _controller = StreamController<QuerySnapshot>.broadcast();
 
   Future _recuperarDadosUsuario() async {
@@ -25,6 +26,7 @@ class _AbaContatosState extends State<AbaContatos> {
     setState(() {
       _idUsuarioLogado = usuarioLogado!.uid;
       _emailLogado = usuarioLogado.email!;
+      //_urlImagem = usuarioLogado.photoURL!;
     });
   }
 
@@ -83,8 +85,7 @@ class _AbaContatosState extends State<AbaContatos> {
               itemCount: usuarios.length,
               itemBuilder: (_, indice) {
                 DocumentSnapshot documentSnapshot = usuarios[indice];
-                Usuario usuario =
-                    Usuario.fromDocumentSnapshot(documentSnapshot);
+                Usuario usuario = Usuario.fromDocumentSnapshot(documentSnapshot);
                 return ListTile(
                   onTap: () {
                     _recuperarDadosUsuario();

@@ -7,10 +7,13 @@ import 'package:whatsapp/model/Usuario.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
+import '../model/Conversa.dart';
+
 
 class Mensagens extends StatefulWidget {
   Usuario contato;
   String emailLogado;
+  //String urlImagem;
   Mensagens(this.contato, this.emailLogado);
 
   @override
@@ -53,7 +56,34 @@ class _MensagensState extends State<Mensagens> {
 
       // Salvando mensagem para o destinatario
       _salvarMensagem(_emailDestinatario, _emailLogado, mensagem);
+
+      //Salvar uma conversa
+        _salvarConversa(mensagem);
     }
+  }
+
+  _salvarConversa(Mensagem mensagem){
+
+    //Salvar conversa para Remetente
+    Conversa cRemetente = Conversa();
+    cRemetente.emailRemetente = _emailLogado;
+    cRemetente.emailDestinatario = _emailDestinatario;
+    cRemetente.mensagem = mensagem.mensagem;
+    cRemetente.nome = widget.contato.nome;
+    cRemetente.caminhoFoto = widget.contato.urlImagem;
+    cRemetente.tipoMensagem = mensagem.tipo;
+    cRemetente.salvar();
+
+    //Salvar conversa para Destinatário
+    Conversa cDestinatario = Conversa();
+    cDestinatario.emailRemetente = _emailDestinatario;
+    cDestinatario.emailDestinatario = _emailLogado;
+    cDestinatario.mensagem = mensagem.mensagem;
+    cDestinatario.nome = widget.contato.nome;
+    cDestinatario.caminhoFoto = widget.contato.urlImagem;
+    cDestinatario.tipoMensagem = mensagem.tipo;
+    cDestinatario.salvar();
+
   }
 
   _salvarMensagem(
