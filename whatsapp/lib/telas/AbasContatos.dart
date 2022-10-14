@@ -17,7 +17,6 @@ class AbaContatos extends StatefulWidget {
 class _AbaContatosState extends State<AbaContatos> {
    String _idUsuarioLogado = '';
    String _emailLogado = '';
-   String _urlImagem = '';
   final _controller = StreamController<QuerySnapshot>.broadcast();
 
   Future _recuperarDadosUsuario() async {
@@ -26,7 +25,7 @@ class _AbaContatosState extends State<AbaContatos> {
     setState(() {
       _idUsuarioLogado = usuarioLogado!.uid;
       _emailLogado = usuarioLogado.email!;
-      //_urlImagem = usuarioLogado.photoURL!;
+
     });
   }
 

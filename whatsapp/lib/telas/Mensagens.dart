@@ -22,8 +22,8 @@ class Mensagens extends StatefulWidget {
 
 class _MensagensState extends State<Mensagens> {
 
-  late String _emailLogado;
-  late String _emailDestinatario;
+  String _emailLogado = '';
+  String _emailDestinatario = '';
   bool _subindoImagem = false;
   FirebaseFirestore db = FirebaseFirestore.instance;
   FirebaseStorage storage = FirebaseStorage.instance;
@@ -38,7 +38,6 @@ class _MensagensState extends State<Mensagens> {
         _emailDestinatario = widget.contato.email;
       });
     }
-
   }
 
   _enviarMenssagem() {

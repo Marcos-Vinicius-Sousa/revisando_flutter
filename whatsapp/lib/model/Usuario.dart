@@ -24,6 +24,12 @@ class Usuario{
     this.urlImagem = documentSnapshot["urlImagem"];
     this.idUsuario = documentSnapshot["idUsuario"];
   }
+  Usuario.fromDocumentSnapshot2(DocumentSnapshot documentSnapshot) {
+    this.email = documentSnapshot["emailRemetente"];
+    this.urlImagem = documentSnapshot["caminhoFoto"];
+    this.nome = documentSnapshot["nome"];
+
+  }
 
   Map<String,dynamic> toMap(){
     Map<String,dynamic> map = {
