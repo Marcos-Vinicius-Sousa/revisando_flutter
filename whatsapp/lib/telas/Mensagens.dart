@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -12,9 +14,10 @@ import '../model/Conversa.dart';
 
 class Mensagens extends StatefulWidget {
   Usuario contato;
+  Usuario logado;
   String emailLogado;
   //String urlImagem;
-  Mensagens(this.contato, this.emailLogado);
+  Mensagens(this.contato,this.logado, this.emailLogado);
 
   @override
   State<Mensagens> createState() => _MensagensState();
@@ -28,6 +31,9 @@ class _MensagensState extends State<Mensagens> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   FirebaseStorage storage = FirebaseStorage.instance;
   TextEditingController _controllerMenssagem = TextEditingController();
+  final _controller = StreamController<QuerySnapshot>.broadcast();
+  ScrollController scrollController = ScrollController();
+
 
   _recuperarDadosUsuario() async {
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -36,6 +42,7 @@ class _MensagensState extends State<Mensagens> {
       setState(() {
         _emailLogado = widget.emailLogado;
         _emailDestinatario = widget.contato.email;
+        _adicionarListenerMensagens();
       });
     }
   }
@@ -71,6 +78,7 @@ class _MensagensState extends State<Mensagens> {
     cRemetente.nome = widget.contato.nome;
     cRemetente.caminhoFoto = widget.contato.urlImagem;
     cRemetente.tipoMensagem = mensagem.tipo;
+    cRemetente.idUsuario = widget.logado.idUsuario;
     cRemetente.salvar();
 
     //Salvar conversa para Destinatário
@@ -78,9 +86,10 @@ class _MensagensState extends State<Mensagens> {
     cDestinatario.emailRemetente = _emailDestinatario;
     cDestinatario.emailDestinatario = _emailLogado;
     cDestinatario.mensagem = mensagem.mensagem;
-    cDestinatario.nome = widget.contato.nome;
-    cDestinatario.caminhoFoto = widget.contato.urlImagem;
+    cDestinatario.nome = widget.logado.nome;
+    cDestinatario.caminhoFoto = widget.logado.urlImagem;
     cDestinatario.tipoMensagem = mensagem.tipo;
+    cDestinatario.idUsuario = widget.contato.idUsuario;
     cDestinatario.salvar();
 
   }
@@ -125,7 +134,7 @@ class _MensagensState extends State<Mensagens> {
     File file = File(path);
     String nomeImagem = DateTime.now().microsecondsSinceEpoch.toString();
     String tempoMensagem = DateTime.now().toString();
-    debugPrint(tempoMensagem);
+
     try{
       String ref = 'mensagens/${_emailLogado}/${nomeImagem}.jpg';
       return storage.ref(ref).putFile(file);
@@ -152,6 +161,20 @@ class _MensagensState extends State<Mensagens> {
 
   }
 
+  StreamController<QuerySnapshot<Object?>>_adicionarListenerMensagens(){
+    final stream = db
+        .collection("mensagens")
+        .doc(_emailLogado)
+        .collection(_emailDestinatario)
+        .orderBy("tempoMensagem")
+        .snapshots();
+
+    stream.listen((dados) {
+      _controller.add(dados);
+    });
+
+    return _controller;
+  }
 
   @override
   void initState() {
@@ -209,12 +232,7 @@ class _MensagensState extends State<Mensagens> {
 
 
     var stream = StreamBuilder(
-        stream: db
-            .collection("mensagens")
-            .doc(_emailLogado)
-            .collection(_emailDestinatario)
-            .orderBy("tempoMensagem")
-            .snapshots(),
+        stream: _controller.stream,
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
@@ -243,8 +261,13 @@ class _MensagensState extends State<Mensagens> {
               if (snapshot.hasError) {
                 return Expanded(child: Text("Erro ao carregar dados"));
               } else {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  scrollController
+                      .jumpTo(scrollController.position.maxScrollExtent);
+                });
                 return Expanded(
                   child: ListView.builder(
+                      controller: scrollController,
                       itemCount: querySnapshot?.docs.length,
                       itemBuilder: (context, indice) {
                       

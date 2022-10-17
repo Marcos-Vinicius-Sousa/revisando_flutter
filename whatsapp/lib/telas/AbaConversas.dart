@@ -20,6 +20,7 @@ class _AbaConversasState extends State<AbaConversas> {
   final _controller = StreamController<QuerySnapshot>.broadcast();
   FirebaseFirestore db = FirebaseFirestore.instance;
   String _emailLogado = '';
+  String _idUsuarioLogado = '';
 
   @override
   void initState() {
@@ -51,7 +52,7 @@ class _AbaConversasState extends State<AbaConversas> {
     User? usuarioLogado = await auth.currentUser;
       setState(() {
         _emailLogado = usuarioLogado!.email!;
-        debugPrint(_emailLogado);
+        _idUsuarioLogado = usuarioLogado!.uid;
         _adicionarListenerConversas();
       });
 
@@ -92,11 +93,11 @@ class _AbaConversasState extends State<AbaConversas> {
           );
         case ConnectionState.active:
         case ConnectionState.done:
-        late QuerySnapshot? querySnapshot = snapshot.data as QuerySnapshot<Object?>?;
+        QuerySnapshot querySnapshot = snapshot.data as QuerySnapshot;
         if (snapshot.hasError) {
           return Text("Erro ao carregar dados");
         }else{
-          if(querySnapshot?.docs.length == 0){
+          if(querySnapshot.docs.length == 0){
             return Center(
               child: Text("Você não tem nenhuma conversa :( ",
               style: TextStyle(
@@ -106,14 +107,20 @@ class _AbaConversasState extends State<AbaConversas> {
               ),
             );
           }
-
+          List<DocumentSnapshot> logado = querySnapshot.docs.where((usuario) => usuario.id == _idUsuarioLogado).toList();
           return ListView.builder(
-            itemCount: querySnapshot?.docs.length,
+            itemCount: querySnapshot.docs.length,
             itemBuilder: (context, indice) {
 
               // recuperar mensagem
-              List<DocumentSnapshot>? conversas = querySnapshot?.docs.toList();
-              DocumentSnapshot item = conversas![indice];
+              List<DocumentSnapshot>? conversas = querySnapshot.docs.toList();
+
+
+              DocumentSnapshot item = conversas[indice];
+              Usuario userLogado = Usuario();
+              if(logado.length != 0 ){
+                userLogado = Usuario.fromDocumentSnapshot(logado[0]);
+              }
               Usuario usuario = Usuario();
               usuario.nome = item["nome"];
               usuario.urlImagem = item["caminhoFoto"];
@@ -126,7 +133,7 @@ class _AbaConversasState extends State<AbaConversas> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Mensagens(usuario,_emailLogado),
+                        builder: (context) => Mensagens(usuario,userLogado,_emailLogado),
                       ));
                 },
                 contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),

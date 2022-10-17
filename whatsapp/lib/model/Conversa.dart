@@ -9,6 +9,7 @@ class Conversa {
   late String _caminhoFoto;
   late String _nome;
   late String _mensagem;
+  late String _idUsuario;
 
 
   String get emailRemetente => _emailRemetente;
@@ -25,6 +26,7 @@ class Conversa {
       "mensagem": mensagem,
       "caminhoFoto": caminhoFoto,
       "nome": nome,
+      "idUsuario": _idUsuario
     };
     return map;
   }
@@ -40,6 +42,13 @@ class Conversa {
             .doc(this.emailDestinatario)
             .set(this.toMap());
     
+  }
+
+
+  String get idUsuario => _idUsuario;
+
+  set idUsuario(String value) {
+    _idUsuario = value;
   }
 
   String get nome => _nome;

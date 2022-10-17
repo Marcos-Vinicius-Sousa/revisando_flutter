@@ -17,6 +17,7 @@ class AbaContatos extends StatefulWidget {
 class _AbaContatosState extends State<AbaContatos> {
    String _idUsuarioLogado = '';
    String _emailLogado = '';
+
   final _controller = StreamController<QuerySnapshot>.broadcast();
 
   Future _recuperarDadosUsuario() async {
@@ -25,7 +26,6 @@ class _AbaContatosState extends State<AbaContatos> {
     setState(() {
       _idUsuarioLogado = usuarioLogado!.uid;
       _emailLogado = usuarioLogado.email!;
-
     });
   }
 
@@ -78,12 +78,14 @@ class _AbaContatosState extends State<AbaContatos> {
           case ConnectionState.done:
             QuerySnapshot querySnapshot = snapshot.data as QuerySnapshot;
             List<DocumentSnapshot> usuarios = querySnapshot.docs.toList();
+            List<DocumentSnapshot> logado = querySnapshot.docs.where((usuario) => usuario.id == _idUsuarioLogado).toList();
             usuarios.removeWhere((usuario) => usuario.id == _idUsuarioLogado);
 
             return ListView.builder(
               itemCount: usuarios.length,
               itemBuilder: (_, indice) {
                 DocumentSnapshot documentSnapshot = usuarios[indice];
+                Usuario userLogado = Usuario.fromDocumentSnapshot(logado[0]);
                 Usuario usuario = Usuario.fromDocumentSnapshot(documentSnapshot);
                 return ListTile(
                   onTap: () {
@@ -92,7 +94,7 @@ class _AbaContatosState extends State<AbaContatos> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Mensagens(usuario,_emailLogado),
+                          builder: (context) => Mensagens(usuario,userLogado,_emailLogado ),
                         ));
                   },
                   contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
